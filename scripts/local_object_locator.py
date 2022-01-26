@@ -1,33 +1,18 @@
 #!/usr/bin/python
 from functools import partial
 from operator import is_not
-from sqlite3 import Timestamp
-import struct
-from sys import float_repr_style
-from unittest import skip
 
 import numpy as np
-from numpy import dtype
 import rospy
 from rospy import Header, Publisher, Subscriber
-from geometry_msgs.msg import PoseStamped, Point, Quaternion
-from sensor_msgs.msg import PointCloud2, Image, PointField, CameraInfo
+from geometry_msgs.msg import PoseStamped
+from sensor_msgs.msg import PointCloud2, PointField, CameraInfo
 from sensor_msgs import point_cloud2
-import logging
 import tf
-import tf2_geometry_msgs
 import image_geometry
 from ws02_robot_control.msg import ObjectDetected, ObjectsInImg
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
-
-
-logging.basicConfig(filename='YoloObjectLocator.log', level=logging.DEBUG, filemode='w', format='%(name)s - %(levelname)s - %(message)s')
-
-
-
-
-
 
 class YoloObjectLocator:
     """
@@ -57,8 +42,6 @@ class YoloObjectLocator:
         self.bridge = CvBridge()
 
         self.tf_listener = tf.TransformListener()
-        self.points = np.array([],dtype=float)
-        self.points.shape = (-1,3)
 
         self.camera_info_sub = rospy.Subscriber('/thorvald_001/kinect2_front_camera/hd/camera_info', 
             CameraInfo, self.camera_info_callback)
@@ -67,38 +50,10 @@ class YoloObjectLocator:
         self.camera_model = image_geometry.PinholeCameraModel()
         self.camera_model.fromCameraInfo(data)
         self.camera_info_sub.unregister() #Only subscribe once
-
-    def add_new_detected_points(self, new_points):
-        print("prior points" + str(len(self.points)))
-        for new_point in new_points:
-            if len(filter(lambda x: not(np.isnan(x)), new_point)) != 3: continue
-            if self.get_close_point_indices(new_point, self.points) > 0.018:
-                self.points = np.vstack((self.points, new_point))
-
-        print("new points" + str(len(new_points)))
-        print("posterior points" + str(len(self.points)))
-
-    def get_close_point_indices(self, node, nodes):
-        if len(nodes) == 0: return np.inf
-        nodes = np.asfarray(nodes)
-        dist_2 = np.sum((nodes - node)**2, axis=1)
-        print(dist_2)
-        return dist_2[np.argmin(dist_2)]
     
     def detect_objects_in_img(self, objects_in_im):
 
-        rospy.logdebug("detected objects!")
-        # std_msgs/Header header
-
-        # # Infromation on detected objects
-        # ws02_robot_control/ObjectDetected[] objects_detected
-
-
-        # # Context information for detected objects
-        # # Might be empy if no objects are detected.
-        # sensor_msgs/CameraInfo camera_info_color
-        # sensor_msgs/Image im_color
-        # sensor_msgs/Image im_depth
+        rospy.logdebug("detected objects: n=%d"%int(len(objects_in_im)))
 
         object_positions = self.get_pixel_positions_from_objects_detected(objects_in_im.objects_detected)
 
@@ -149,9 +104,6 @@ class YoloObjectLocator:
             except CvBridgeError as e:
                 #rospy.logerr(e)
                 return None
-            
-
-           
 
 
     def get_cam_coord_from_img_position(self, im_pixel_position, im_depth, im_color, camera_model):
@@ -187,10 +139,10 @@ class YoloObjectLocator:
             camera_coords = [x/camera_coords[2] for x in camera_coords] # adjust the resulting vector so that z = 1
             camera_coords = [x*depth_value for x in camera_coords] # multiply the vector by depth
         except Exception as e:
-            #rospy.logerr("Transformation to deph or camera corrdinates failed!")
-            #rospy.logerr("\t \t Color, \t \t image")
-            #rospy.logerr("size:\t" + str(image_color.shape) + "," + str(image_depth.shape))
-            #rospy.logerr("coord:\t" + "(" + str(im_pixel_position.x) + "," + str(im_pixel_position.y) + "),\t" + str(depth_coords))
+            rospy.logerr("Transformation to deph or camera corrdinates failed!")
+            rospy.logerr("\t \t Color, \t \t image")
+            rospy.logerr("size:\t" + str(image_color.shape) + "," + str(image_depth.shape))
+            rospy.logerr("coord:\t" + "(" + str(im_pixel_position.x) + "," + str(im_pixel_position.y) + "),\t" + str(depth_coords))
             return None
         #define a point in camera coordinates
         object_location = PoseStamped()

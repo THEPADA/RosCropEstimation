@@ -2,10 +2,8 @@
 import torch
 import rospy
 import os
-from geometry_msgs.msg import PoseStamped, Point, Quaternion, Pose2D
-from sensor_msgs.msg import PointCloud2, Image, CameraInfo
-from cv_bridge import CvBridge
-import cv2
+from geometry_msgs.msg import Pose2D
+from sensor_msgs.msg import Image, CameraInfo
 import numpy as np
 
 
@@ -57,39 +55,18 @@ class ObjectDetector:
         ts.registerCallback(self.detect_objects_in_img)
 
     def detect_objects_in_img(self, image_message, depth_message, camera_info_message):
-        timestamp = image_message.header.stamp
         im = np.frombuffer(image_message.data, dtype=np.uint8).reshape(image_message.height, image_message.width, -1)
-
-        #im2 = cv2.cvtColor(im, cv2.COLOR_RGB2BGR)
-        #cv2.imshow("Recorded image",im2)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
-
         objects = self.get_objects_in_img_from_detector(im)
         df = None
+      
         if objects is not None:
             df = objects.pandas().xyxy[0]
-            # If objects detected publish results as poses
         
         detections = self.serialise_detections_to_object_detected_msg(df)
         object_in_img = self.serialise_detections_msgs_to_object_in_img_msg(image_message, depth_message, camera_info_message, detections)
-
         self.det_pub.publish(object_in_img)
 
-
-
     def serialise_detections_msgs_to_object_in_img_msg(self, image_message, depth_message, camera_info_message, detections):
-        # std_msgs/Header header
-
-        # # Infromation on detected objects
-        # ws02_robot_control/ObjectDetected[] objects_detected
-
-
-        # # Context information for detected objects
-        # # Might be empy if no objects are detected.
-        # sensor_msgs/CameraInfo camera_info_color
-        # sensor_msgs/Image im_color
-        # sensor_msgs/Image im_depth
         if image_message is None or depth_message is None or camera_info_message is None or detections is None:
             return ObjectsInImg()
         
@@ -104,42 +81,14 @@ class ObjectDetector:
         return [self.serialise_detection_to_object_detected_msg(detection) for index, detection in df.iterrows()]
 
     def serialise_detection_to_object_detected_msg(self, df):
-        # # Rows: xmin, ymin, xmax, ymax,  confidence, class, name, xcenter, ycenter, xsize, ysize
-        # std_msgs/Header header
-
-        # # The unique numeric ID of the object class. To get additional information about
-        # # this ID, such as its human-readable class name, listeners should perform a
-        # # lookup in a metadata database. See vision_msgs/VisionInfo.msg for more detail.
-        # int64 id
-
-        # # The probability or confidence value of the detected object. By convention,
-        # # this value should lie in the range [0-1].
-        # float64 score
-
-        # # View 1: BoundingBox
-        # vision_msgs/BoundingBox2D bbox
-
-        # # View 2: This represents a pose in free space with uncertainty.
-        # geometry_msgs/Pose pose
-
-        # # Row-major representation of the 6x6 covariance matrix
-        # # The orientation parameters use a fixed-axis representation.
-        # # In order, the parameters are:
-        # # (x, y, z, rotation about X axis, rotation about Y axis, rotation about Z axis)
-        # float64[36] covariance
-
         if df.empty or df is None:   
             return ObjectDetected()
-
-        #df['xmin'],df['xmax']=np.where(df['xmin']>df['xmax'],(df['xmax'],df['xmin']),(df['xmin'],df['xmax']))
-        #df['ymin'],df['ymax']=np.where(df['ymin']>df['ymax'],(df['ymax'],df['ymin']),(df['ymin'],df['ymax']))
 
         df["xcenter"] = (df["xmax"]+ df["xmin"])/2
         df["ycenter"] = (df["ymax"]+ df["ymin"])/2
 
         df["xsize"] = df["xmax"] - df["xmin"]
         df["ysize"] = df["ymax"] - df["ymin"]
-
 
         object_detected_msg = ObjectDetected()
         object_detected_msg.id = df["class"]

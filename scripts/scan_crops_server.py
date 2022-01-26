@@ -1,14 +1,7 @@
-#! /usr/bin/env python
-# ----------------------------------
-# @author: gpdas
-# @email: pdasgautham@gmail.com
-# @date:
-# ----------------------------------
-
 import rospy
 import actionlib
 
-from uol_cmp9767m_tutorial.msg import ScanCropLineAction, ScanCropLineResult
+from ws02_robot_control.msg import ScanCropLineAction, ScanCropLineResult
 
 class ScanCropLinesServer:
     def __init__(self):
@@ -23,7 +16,6 @@ class ScanCropLinesServer:
         result = ScanCropLineResult()
         result.total_dishes_cleaned = self.total_dishes_cleaned
         self.server.set_succeeded(result)
-
 
 if __name__ == '__main__':
     rospy.init_node('scan_cropline_server')
