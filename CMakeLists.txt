@@ -198,7 +198,7 @@ catkin_install_python(PROGRAMS scripts/talker.py scripts/listener.py
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 install(FILES
-  launch/run_simulation.xml
+  launch/demo.launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
