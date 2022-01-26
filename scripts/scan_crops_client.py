@@ -3,10 +3,10 @@ import actionlib
 
 from uol_cmp9767m_tutorial.msg import DoDishesAction, DoDishesGoal
 
-class ScanCropsServer:
+class ScanCropsClient:
     def __init__(self):
-        rospy.init_node('do_dishes_client')
-        self.client = actionlib.SimpleActionClient('scan_crop_line', DoDishesAction)
+        rospy.init_node('scan_crops_client')
+        self.client = actionlib.SimpleActionClient('scan_crop', DoDishesAction)
         self.client.wait_for_server()
     
     def send_goal(self, target):
