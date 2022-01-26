@@ -16,7 +16,7 @@
 
   <!-- navigation arguments -->
   <arg name="launch_move_base" default="true"/>
-  <arg name="tf_prefix" default="$(arg robot_name)/"/>
+  <!--<arg name="tf_prefix" default="$(arg robot_name)/"/>-->
   <arg name="use_carrot_planner" default="false"/>
   <arg name="use_omni" default="false"/>
   <arg name="world_2_map_pose" default="0.0 0.0 0.0 0.0 0.0 0.0 1.0" />
@@ -33,12 +33,11 @@
 
   <!-- merge robot scans into one -->
   <include file="$(find bacchus_move_base)/launch/corner_lasers_merger.launch">
-    <arg name="tf_prefix" value="thorvald_001/"/>
   </include>
 
 
   <!-- ############################## GAZEBO ############################## -->
-  <arg name="world_name" default="vineyard_all_stages" unless="$(arg riseholme_dt)"/>
+  <arg name="world_name" default="vineyard_small" unless="$(arg riseholme_dt)"/>
   <arg name="world_name" value="riseholme_digital_twin" if="$(arg riseholme_dt)"/>
   <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
   <arg name="world" default="$(find bacchus_gazebo)/worlds/$(arg world_name).world"/>

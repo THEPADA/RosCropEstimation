@@ -1,7 +1,8 @@
+#! /usr/bin/python2
 import rospy
 import actionlib
 
-from uol_cmp9767m_tutorial.msg import DoDishesAction, DoDishesGoal
+from ros_crop_estimation.msg import ScanCropAction, ScanLineGoal
 
 class ScanCropsClient:
     def __init__(self):
@@ -9,13 +10,13 @@ class ScanCropsClient:
 
         self.list_of_waypoints = rospy.get_param('topological_path', [])
 
-        self.client = actionlib.SimpleActionClient('scan_crops', DoDishesAction)
+        self.client = actionlib.SimpleActionClient('scan_crops', ScanCropAction)
         self.client.wait_for_server()
         self.result = []
     
     def send_goal(self):
         for waypint in self.list_of_waypoints:
-            goal = DoDishesGoal()
+            goal = ScanLineGoal()
             #Fill in the goal here
             self.client.send_goal(goal)
             goal.target = waypint

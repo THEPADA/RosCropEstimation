@@ -1,8 +1,11 @@
 <?xml version="1.0" ?>
 <launch>
+  <arg name="robot_name" default="thorvald"/>
   <!-- ############################### TOPOLOGICAL MAP ############################# -->
+
   <include file="$(find uol_cmp9767m_tutorial)/launch/topo_nav.launch">
     <arg name="tmap" value="crop_estimation"/>
+    <arg name="robot_name" default="thorvald"/>
   </include>
 
   <!-- ############################### RVIZ ############################### -->
