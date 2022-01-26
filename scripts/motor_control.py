@@ -26,5 +26,6 @@ if __name__ == "__main__":
     try:
         RobotController()
         rospy.spin()
-    except e as Error:
+    except Exception as e:
+        print(e)
         pass

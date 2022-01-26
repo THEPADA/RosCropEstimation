@@ -175,12 +175,12 @@ class YoloObjectLocator:
         # "map" from color to depth image
         rospy.logdebug("image shapes: " + str(image_color.shape) + str(image_depth.shape))
         rospy.logdebug("color image pixel: " + str( im_pixel_position.x) + "," + str(im_pixel_position.y))
-        depth_coords = (image_depth.shape[0]/2 + (im_pixel_position.y- image_color.shape[0]/2)*self.color2depth_aspect, 
-            image_depth.shape[1]/2 + (im_pixel_position.x - image_color.shape[1]/2)*self.color2depth_aspect)
+        depth_coords = (image_depth.shape[0]/2 + (im_pixel_position.x- image_color.shape[0]/2)*self.color2depth_aspect, 
+            image_depth.shape[1]/2 + (im_pixel_position.y - image_color.shape[1]/2)*self.color2depth_aspect)
 
         try:
             # get the depth reading at the centroid location
-            depth_value = image_depth[int(depth_coords[0]), int(depth_coords[1])] # you might need to do some boundary checking first!
+            depth_value = image_depth[int(depth_coords[1]), int(depth_coords[0])] # you might need to do some boundary checking first!
 
             # calculate object's 3d location in camera coords
             camera_coords = self.camera_model.projectPixelTo3dRay((im_pixel_position.x, im_pixel_position.y)) #project the image coords (x,y) into 3D ray in camera coords 

@@ -53,7 +53,7 @@ class ObjectDetector:
         self.color_img_sub = message_filters.Subscriber("thorvald_001/kinect2_front_camera/hd/image_color_rect", Image)
         self.depth_img_sub = message_filters.Subscriber("thorvald_001/kinect2_front_sensor/sd/image_depth_rect", Image)
         self.camera_info = message_filters.Subscriber("thorvald_001/kinect2_front_sensor/sd/camera_info", CameraInfo)
-        ts = message_filters.ApproximateTimeSynchronizer([self.color_img_sub, self.depth_img_sub, self.camera_info], 10, 0.1, allow_headerless=True)
+        ts = message_filters.ApproximateTimeSynchronizer([self.color_img_sub, self.depth_img_sub, self.camera_info], 10, 0.01, allow_headerless=True)
         ts.registerCallback(self.detect_objects_in_img)
 
     def detect_objects_in_img(self, image_message, depth_message, camera_info_message):
