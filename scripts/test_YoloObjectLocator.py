@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import unittest
 
-from ws02_robot_control.scripts.YoloObjectLocator import YoloObjectLocator
+from ros_crop_estimation.scripts.YoloObjectLocator import YoloObjectLocator
 import YoloObjectLocator
 
 

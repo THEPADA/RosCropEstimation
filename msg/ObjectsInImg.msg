@@ -1,7 +1,7 @@
 std_msgs/Header header
 
 # Infromation on detected objects
-ws02_robot_control/ObjectDetected[] objects_detected
+ros_crop_estimation/ObjectDetected[] objects_detected
 
 
 # Context information for detected objects

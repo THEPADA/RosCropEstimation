@@ -1,0 +1,8 @@
+# Define the goal
+uint32 crop_waypoint  # Specify which dishwasher we want to use
+---
+# Define the result
+float32 crop_estimated
+---
+# Define a feedback message
+float32 percent_complete

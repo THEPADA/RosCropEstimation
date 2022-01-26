@@ -10,7 +10,7 @@ from sensor_msgs.msg import PointCloud2, PointField, CameraInfo
 from sensor_msgs import point_cloud2
 import tf
 import image_geometry
-from ws02_robot_control.msg import ObjectDetected, ObjectsInImg
+from ros_crop_estimation.msg import ObjectDetected, ObjectsInImg
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
 

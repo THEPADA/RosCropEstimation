@@ -7,7 +7,7 @@ from sensor_msgs.msg import Image, CameraInfo
 import numpy as np
 
 
-from ws02_robot_control.msg import ObjectDetected, ObjectsInImg
+from ros_crop_estimation.msg import ObjectDetected, ObjectsInImg
 from vision_msgs.msg import BoundingBox2D
 
 

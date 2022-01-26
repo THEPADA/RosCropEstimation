@@ -1,7 +1,7 @@
 import rospy
 import actionlib
 
-from ws02_robot_control.msg import ScanCropLineAction, ScanCropLineResult
+from ros_crop_estimation.msg import ScanCropLineAction, ScanCropLineResult
 
 class ScanCropLinesServer:
     def __init__(self):
@@ -12,9 +12,9 @@ class ScanCropLinesServer:
     def execute(self, goal):
         # Do lots of robot stuff here
         # total dishes count is incremented each time the action is executed, and returned as result
-        self.total_dishes_cleaned += 1
+        self.scaned_crop_lines += 1
         result = ScanCropLineResult()
-        result.total_dishes_cleaned = self.total_dishes_cleaned
+        result.scaned_crop_lines = self.scaned_crop_lines
         self.server.set_succeeded(result)
 
 if __name__ == '__main__':

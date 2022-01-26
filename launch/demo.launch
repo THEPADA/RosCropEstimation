@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>
+<launch>
+
+
+  <!-- topological navigation -->
+  <include file="$(find uol_cmp9767m_tutorial)/launch/topo_nav.launch">
+    <arg name="tmap" value="crop_estimation"/>
+  </include>
+
+  <!-- ############################### ROBOT SIMULATION BASE STACK ############################# -->
+  <include file="$(find ros_crop_estimation_framework)/launch/base.launch">
+    <!-- Robot arguments -->
+    <arg name="fake_localisation" default="true" doc="fake the localisation, sets map_server and world_tf to true."/>
+    <arg name="riseholme_dt" default="false"/>
+    <arg name="robot_name" default="thorvald"/>
+    <arg name="robot_no" default="001"/>  <!-- unused-->
+    <arg name="robot_model" default="$(find bacchus_gazebo)/config/robot.yaml"/>
+    <!-- sensor suites:
+      - simple_sensors
+      - bacchus_sensors (2 hokuyo, 3 kinect v2, 1 velodyne)
+      -->
+    <arg name="model_extras" default="$(find bacchus_gazebo)/urdf/bacchus_sensors.xacro"/>
+    <arg name="multi_sim" default="false"/>
+
+    <!-- navigation arguments -->
+    <arg name="launch_move_base" default="true"/>
+    <arg name="tf_prefix" default="$(arg robot_name)/"/>
+    <arg name="use_carrot_planner" default="false"/>
+    <arg name="use_omni" default="false"/>
+    <arg name="world_2_map_pose" default="0.0 0.0 0.0 0.0 0.0 0.0 1.0" />
+    
+    <arg name="X_INIT" value="40.0" if="$(arg riseholme_dt)"/>
+    <arg name="Y_INIT" value="-40.0" if="$(arg riseholme_dt)"/>
+    <arg name="Z_INIT" value="1.2" if="$(arg riseholme_dt)"/>
+    <arg name="nav_map_yaml" default="$(find bacchus_gazebo)/maps/riseholme.yaml" if="$(arg riseholme_dt)"/>
+
+    <arg name="X_INIT" value="-11.0" unless="$(arg riseholme_dt)"/>
+    <arg name="Y_INIT" value="0.0" unless="$(arg riseholme_dt)"/>
+    <arg name="Z_INIT" value="1.0" unless="$(arg riseholme_dt)"/>
+    <arg name="nav_map_yaml" default="$(find bacchus_gazebo)/maps/cropped.yaml" unless="$(arg riseholme_dt)"/>
+
+  </include> 
+
+  <!-- ############################### LOCAL OBJECT DETECTOR ############################# -->
+  <node name="object_detector" pkg="ros_crop_estimation" type="image_object_detector.py"/>
+
+  <!-- ############################### GLOBAL OBJECT LOCATION ############################# -->
+  <node name="object_locator" pkg="ros_crop_estimation" type="global_objects_integrator.py"/>
+
+  <group if="$(eval arg('navigation_mode')=='random_walk')">
+    <include file="$(find ros_crop_estimation_framework)/launch/nav_random_walk.launch"/>
+  </group>
+
+  <group if="$(eval arg('navigation_mode')=='topologic')">
+
+  </group>
+</launch>
+
+
+
+
+
+
