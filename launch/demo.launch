@@ -19,14 +19,16 @@
     <arg name="use_omni" default="false"/>
 
   </include> 
+  
+   <!-- ############################### LOCAL OBJECT DETECTOR ############################# -->
+  <node name="image_object_detector_2" pkg="ros_crop_estimation" type="image_object_detector.py">
+    <param name="~camera_topic_prefix" type="string" value="thorvald_001/kinect2_right"/>
+  </node>
 
-  <!-- ############################### LOCAL OBJECT DETECTOR ############################# -->
-  <node name="image_object_detector" pkg="ros_crop_estimation" type="image_object_detector.py"/>
-
-  <!-- ############################### GLOBAL OBJECT LOCATION ############################# -->
+  <!-- ############################### GLOBAL OBJECT INTEGRATION ############################# -->
   <node name="global_object_integator" pkg="ros_crop_estimation" type="global_objects_integrator.py"/>
 
-    <!-- ############################### GLOBAL OBJECT LOCATION ############################# -->
+    <!-- ############################### LOCAL OBJECT LOCATION ############################# -->
   <node name="local_object_locator" pkg="ros_crop_estimation" type="local_object_locator.py"/>
 
   <group if="$(eval arg('navigation_mode')=='random_walk')">

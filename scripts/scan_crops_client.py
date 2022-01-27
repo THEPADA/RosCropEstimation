@@ -10,7 +10,7 @@ class ScanCropsClient:
     def __init__(self):
         rospy.init_node('scan_crops_client')
 
-        self.list_of_waypoints = rospy.get_param('topological_path', ["winetasting_0", "winetasting_1"])
+        self.list_of_waypoints = rospy.get_param('~topological_path', ["winetasting_0", "winetasting_1"])
         rospy.loginfo("Running crop scan with path:" + str(self.list_of_waypoints))
 
         self.client = actionlib.SimpleActionClient('scan_crops', ScanCropsAction)

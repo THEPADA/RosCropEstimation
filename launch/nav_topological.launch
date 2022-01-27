@@ -13,7 +13,7 @@
   <arg name="rviz_config_file" default="$(find bacchus_gazebo)/rviz/vineyard_demo.rviz"/>
 
   <node name="scan_crops_client" pkg="ros_crop_estimation" type="scan_crops_client.py">
-    <rosparam file="$(find ros_crop_estimation)/config/topological_navigation_params.yaml" />
+    <rosparam command="load" file="$(find ros_crop_estimation)/config/topological_navigation_params.yaml" />
   </node>
 
   <node name="scan_crops_server" pkg="ros_crop_estimation" type="scan_crops_server.py">
