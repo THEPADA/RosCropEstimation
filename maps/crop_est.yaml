@@ -1,7 +1,7 @@
 - meta:
-    map: test
+    map: crop_estimation
     node: winetasting_0
-    pointset: test
+    pointset: crop_estimation
     published_at: 1970-01-01 00:03:36.360000+00:00
     timestamp: 216360000000
   node:
@@ -9,14 +9,14 @@
     - action: move_base
       edge_id: first_taste
       inflation_radius: 0.0
-      map_2d: test
+      map_2d: crop_estimation
       node: winetasting_1
       recovery_behaviours_config: ''
       top_vel: 0.55
     localise_by_topic: ''
-    map: test
+    map: crop_estimation
     name: winetasting_0
-    pointset: test
+    pointset: crop_estimation
     pose:
       orientation:
         w: 1.0
@@ -47,9 +47,9 @@
     xy_goal_tolerance: 0.3
     yaw_goal_tolerance: 0.1
 - meta:
-    map: test
+    map: crop_estimation
     node: winetasting_1
-    pointset: test
+    pointset: crop_estimation
     published_at: 1970-01-01 00:03:36.370000+00:00
     timestamp: 216370000000
   node:
@@ -57,14 +57,14 @@
     - action: move_base
       edge_id: second_taste
       inflation_radius: 0.0
-      map_2d: test
+      map_2d: crop_estimation
       node: winetasting_2
       recovery_behaviours_config: ''
       top_vel: 0.55
     localise_by_topic: ''
-    map: test
+    map: crop_estimation
     name: winetasting_1
-    pointset: test
+    pointset: crop_estimation
     pose:
       orientation:
         w: 1.0
@@ -95,9 +95,9 @@
     xy_goal_tolerance: 0.3
     yaw_goal_tolerance: 0.1
 - meta:
-    map: test
+    map: crop_estimation
     node: winetasting_2
-    pointset: test
+    pointset: crop_estimation
     published_at: 1970-01-01 00:03:36.375000+00:00
     timestamp: 216375000000
   node:
@@ -105,14 +105,14 @@
     - action: move_base
       edge_id: third_taste
       inflation_radius: 0.0
-      map_2d: test
+      map_2d: crop_estimation
       node: winetasting_3
       recovery_behaviours_config: ''
       top_vel: 0.55
     localise_by_topic: ''
-    map: test
+    map: crop_estimation
     name: winetasting_2
-    pointset: test
+    pointset: crop_estimation
     pose:
       orientation:
         w: 1.0
@@ -143,9 +143,9 @@
     xy_goal_tolerance: 0.3
     yaw_goal_tolerance: 0.1
 - meta:
-    map: test
+    map: crop_estimation
     node: winetasting_3
-    pointset: test
+    pointset: crop_estimation
     published_at: 1970-01-01 00:03:36.380000+00:00
     timestamp: 216380000000
   node:
@@ -153,14 +153,14 @@
     - action: move_base
       edge_id: next_taste
       inflation_radius: 0.0
-      map_2d: test
+      map_2d: crop_estimation
       node: winetasting_0
       recovery_behaviours_config: ''
       top_vel: 0.55
     localise_by_topic: ''
-    map: test
+    map: crop_estimation
     name: winetasting_3
-    pointset: test
+    pointset: crop_estimation
     pose:
       orientation:
         w: 1.0

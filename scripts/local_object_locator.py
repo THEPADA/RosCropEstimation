@@ -14,7 +14,7 @@ from ros_crop_estimation.msg import ObjectDetected, ObjectsInImg
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
 
-class YoloObjectLocator:
+class LocalObjectLocator:
     """
     The YoloObjectLocator publishes a point cloud that includes the detected positions of grape-bunches.
     This is done by subscribing to the robot's camera and extracting grape image positions from the image.
@@ -27,7 +27,6 @@ class YoloObjectLocator:
     detector_model = None
     color2depth_aspect = (84.1/1920) / (70.0/512)
     visualisation = True
-    points = None
     camera_model = None
     tf_listener = None
     
@@ -53,7 +52,7 @@ class YoloObjectLocator:
     
     def detect_objects_in_img(self, objects_in_im):
 
-        rospy.logdebug("detected objects: n=%d"%int(len(objects_in_im)))
+        rospy.logdebug("detected objects!")
 
         object_positions = self.get_pixel_positions_from_objects_detected(objects_in_im.objects_detected)
 
@@ -70,8 +69,7 @@ class YoloObjectLocator:
         header = Header()
         header.frame_id = "map"
 
-        self.add_new_detected_points(world_positions)
-        point_cloud = point_cloud2.create_cloud(header, fields, self.points)
+        point_cloud = point_cloud2.create_cloud(header, fields, world_positions)
 
         self.pc_pub.publish(point_cloud)
 
@@ -160,7 +158,7 @@ class YoloObjectLocator:
 
 if __name__ == "__main__":
     try:
-        YoloObjectLocator()
+        LocalObjectLocator()
         rospy.spin()
 
     except:

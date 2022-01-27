@@ -1,11 +1,12 @@
 <?xml version="1.0" ?>
 <launch>
 
-  <!-- Robot arguments -->
+  <!--< Robot arguments -->
   <arg name="fake_localisation" default="true" doc="fake the localisation, sets map_server and world_tf to true."/>
   <arg name="riseholme_dt" default="false"/>
   <arg name="robot_name" default="thorvald"/>
   <arg name="robot_no" default="001"/>  <!-- unused-->
+  <!--<arg name="tf_prefix" default="$(arg robot_name)/"/>-->
   <arg name="robot_model" default="$(find bacchus_gazebo)/config/robot.yaml"/>
   <arg name="model_extras" default="$(find bacchus_gazebo)/urdf/bacchus_sensors.xacro"/>
   <arg name="multi_sim" default="false"/>
@@ -13,7 +14,6 @@
     - simple_sensors
     - bacchus_sensors (2 hokuyo, 3 kinect v2, 1 velodyne)
     -->
-
   <!-- navigation arguments -->
   <arg name="launch_move_base" default="true"/>
   <!--<arg name="tf_prefix" default="$(arg robot_name)/"/>-->
@@ -75,6 +75,7 @@
     <arg name="verbose"           value="$(arg verbose)"/>
     <arg name="launch_move_base"  value="$(arg launch_move_base)"/>
   </include>
+
 
   <group if="$(arg multi_sim)">
     <include file="$(find bacchus_gazebo)/launch/thorvald.launch" >

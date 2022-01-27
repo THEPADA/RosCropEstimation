@@ -1,5 +1,5 @@
 # Define the goal
-uint32 crop_waypoint  # Specify which dishwasher we want to use
+string crop_waypoint  # Specify which dishwasher we want to use
 ---
 # Define the result
 float32 crop_estimated

@@ -1,21 +1,22 @@
 <?xml version="1.0" ?>
 <launch>
-  <arg name="robot_name" default="thorvald"/>
+  <arg name="robot_name" default="thorvald_001"/>
   <!-- ############################### TOPOLOGICAL MAP ############################# -->
 
   <include file="$(find uol_cmp9767m_tutorial)/launch/topo_nav.launch">
-    <arg name="tmap" value="crop_estimation"/>
-    <arg name="robot_name" default="thorvald"/>
+    <arg name="tmap" value="test"/>
+    <arg name="robot_name" default="thorvald_001"/>
   </include>
 
   <!-- ############################### RVIZ ############################### -->
   <arg name="launch_rviz" default="true"/>
   <arg name="rviz_config_file" default="$(find bacchus_gazebo)/rviz/vineyard_demo.rviz"/>
 
-  <node name="scan_crops_client" pkg="ros_crop_estimation" type="scan_crops_client.py">
-    <param name="topological_path" type="yaml" command="cat '$(find roslaunch)/config/topological_navigation_params.yaml'" />
-  </node> 
+  <!--<node name="scan_crops_client" pkg="ros_crop_estimation" type="scan_crops_client.py">
+    <rosparam file="$(find ros_crop_estimation)/config/topological_navigation_params.yaml" />
+  </node>--> 
 
   <node name="scan_crops_server" pkg="ros_crop_estimation" type="scan_crops_server.py">
   </node>
+  
 </launch>

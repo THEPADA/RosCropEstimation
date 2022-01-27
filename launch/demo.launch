@@ -2,10 +2,6 @@
 <launch>    
   <!-- Robot arguments -->
   <arg name="fake_localisation" default="true" doc="fake the localisation, sets map_server and world_tf to true."/>
-  <arg name="riseholme_dt" default="false"/>
-  <arg name="robot_name" default="thorvald"/>
-  <arg name="robot_no" default="001"/>  <!-- unused-->
-  <arg name="robot_model" default="$(find bacchus_gazebo)/config/robot.yaml"/>
   <arg name="navigation_mode" default="topologic"/>
 
   <!-- ############################### ROBOT SIMULATION BASE STACK ############################# -->
@@ -21,7 +17,6 @@
     <arg name="launch_move_base" default="true"/>
     <arg name="use_carrot_planner" default="false"/>
     <arg name="use_omni" default="false"/>
-    <arg name="world_2_map_pose" default="0.0 0.0 0.0 0.0 0.0 0.0 1.0" />
 
   </include> 
 
@@ -37,8 +32,7 @@
 
   <group if="$(eval arg('navigation_mode')=='topologic')">
     <!-- topological navigation -->
-    <include file="$(find uol_cmp9767m_tutorial)/launch/topo_nav.launch">
-      <arg name="tmap" value="crop_estimation"/>
+    <include file="$(find ros_crop_estimation)/launch/nav_topological.launch">
     </include>
   </group>
 </launch>
