@@ -32,8 +32,11 @@ class ObjectDetector:
     detector_model = None
     cv_bridge = None
 
-    def __init__(self, model_repo_or_dir='ultralytics/yolov5', model_name = 'yolov5s', pub_name="/object_detector/object_detected"):
-        rospy.init_node("Dectector")
+    def __init__(self, 
+                model_repo_or_dir='ultralytics/yolov5', 
+                model_name = 'yolov5s', 
+                pub_name="/object_detector/object_detected"):
+        rospy.init_node("image_object_detector")
         
         dirname = os.path.dirname(__file__)
         filename = os.path.join(dirname, '../models/yolov5/best.pt')
@@ -48,9 +51,9 @@ class ObjectDetector:
             exit()
 
         self.det_pub = rospy.Publisher(pub_name, data_class=ObjectsInImg, queue_size=10)
-        self.color_img_sub = message_filters.Subscriber("thorvald_001/kinect2_front_camera/hd/image_color_rect", Image)
-        self.depth_img_sub = message_filters.Subscriber("thorvald_001/kinect2_front_sensor/sd/image_depth_rect", Image)
-        self.camera_info = message_filters.Subscriber("thorvald_001/kinect2_front_sensor/sd/camera_info", CameraInfo)
+        self.color_img_sub = message_filters.Subscriber("thorvald_001/kinect2_right_camera/hd/image_color_rect", Image)
+        self.depth_img_sub = message_filters.Subscriber("thorvald_001/kinect2_right_sensor/sd/image_depth_rect", Image)
+        self.camera_info = message_filters.Subscriber("thorvald_001/kinect2_right_sensor/sd/camera_info", CameraInfo)
         ts = message_filters.ApproximateTimeSynchronizer([self.color_img_sub, self.depth_img_sub, self.camera_info], 10, 0.01, allow_headerless=True)
         ts.registerCallback(self.detect_objects_in_img)
 

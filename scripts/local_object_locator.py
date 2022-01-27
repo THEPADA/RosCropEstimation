@@ -32,7 +32,7 @@ class LocalObjectLocator:
     
 
     def __init__(self, model_repo_or_dir='ultralytics/yolov5', model_name = 'yolov5s', pub_name="/object_detector/objects_pointcloud", sub_name="/object_detector/object_detected"):
-        rospy.init_node("ObjectLocator", log_level=rospy.INFO)
+        rospy.init_node("local_object_locator", log_level=rospy.INFO)
         
         self.pc_pub = Publisher(pub_name, data_class=PointCloud2,queue_size=10)
         self.img_sub = Subscriber(sub_name, data_class=ObjectsInImg, callback=self.detect_objects_in_img)
@@ -136,6 +136,9 @@ class LocalObjectLocator:
             camera_coords = self.camera_model.projectPixelTo3dRay((im_pixel_position.x, im_pixel_position.y)) #project the image coords (x,y) into 3D ray in camera coords 
             camera_coords = [x/camera_coords[2] for x in camera_coords] # adjust the resulting vector so that z = 1
             camera_coords = [x*depth_value for x in camera_coords] # multiply the vector by depth
+        except IndexError as e:
+            # ignore, image boundary exception due to different angles of camera
+            return None
         except Exception as e:
             rospy.logerr("Transformation to deph or camera corrdinates failed!")
             rospy.logerr("\t \t Color, \t \t image")

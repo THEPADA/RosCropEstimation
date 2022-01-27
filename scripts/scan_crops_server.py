@@ -1,6 +1,8 @@
 #! /usr/bin/python2
 import rospy
 import actionlib
+from sensor_msgs.msg import PointCloud2
+from sensor_msgs import point_cloud2
 
 from ros_crop_estimation.msg import ScanCropsAction, ScanCropsResult
 from topological_navigation.msg import GotoNodeAction, GotoNodeGoal
@@ -12,6 +14,7 @@ class ScanCropLinesServer:
         self.server = actionlib.SimpleActionServer('scan_crops', ScanCropsAction, self.execute, False)
         self.server.start()
         self.scaned_crop_lines = 0
+        self.scanned_bunches = 0
 
         self.client = actionlib.SimpleActionClient('/thorvald_001/topological_navigation', GotoNodeAction)
         self.client.wait_for_server()
@@ -27,9 +30,15 @@ class ScanCropLinesServer:
         result = self.client.get_result()
         rospy.loginfo("status is %s", status)
         rospy.loginfo("result is %s", result)
+
+
+        rospy.loginfo("Waiting for global object map to check crop estimate")
+        pc_global_obj = rospy.wait_for_message("/object_detector/global_map", PointCloud2)
+        object_points = point_cloud2.read_points(pc_global_obj)
+        self.scanned_bunches = len(object_points)
         self.scaned_crop_lines += 1
         ret_result = ScanCropsResult()
-        ret_result.crop_estimated = self.scaned_crop_lines
+        ret_result.crop_estimated = self.scanned_bunches
         self.server.set_succeeded(ret_result)
 
 if __name__ == '__main__':
