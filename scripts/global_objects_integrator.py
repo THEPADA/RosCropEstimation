@@ -42,7 +42,7 @@ class GlobalObjectIntegrator:
         rospy.loginfo_throttle(5, "prior points" + str(len(self.global_objects)))
         for new_point in new_points:
             if len(filter(lambda x: not(np.isnan(x)), new_point)) != 3: continue
-            if self.get_close_point_indices(new_point, self.global_objects) > 0.01:
+            if self.get_close_point_indices(new_point, self.global_objects) > 0.02:
                 self.global_objects = np.vstack((self.global_objects, new_point))
 
         rospy.loginfo_throttle(5,"new points" + str(len(new_points)))
