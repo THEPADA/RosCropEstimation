@@ -1,5 +1,7 @@
 # RosCropEstimation
 
+The documentation is also available as [html](https://thepada.github.io/RosCropEstimation/doc/html/index.html).
+
 ## Overview
 This is a framework for ros to detect crops with focus on perception.
 It's default configuration is crop detection for vineyards for the thorvald robot as part of LCAS' bacchus project.
