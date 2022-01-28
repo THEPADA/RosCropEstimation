@@ -32,8 +32,8 @@ The following installation process describes the steps necessary to run the demo
 
 ## Run
 
-1. go to your workspace and use the command: catkin_make install
-2. roslaunch ros_crop_estimation demo.launch
+1. go to your workspace and use the command: `catkin_make install`.
+2. launch the demo: `roslaunch ros_crop_estimation demo.launch`.
 3. insert topological map: `rosrun topological_utils load_yaml_map.py $(rospack find ros_crop_estimation)/maps/crop_est.yaml`
 4. The robot will start moving and will return the number of grape bunches.
 
