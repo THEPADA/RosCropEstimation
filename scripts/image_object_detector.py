@@ -22,8 +22,9 @@ logging.basicConfig(filename='YoloObjectLocator.log', level=logging.DEBUG, filem
 
 class ObjectDetector:
     """
-    The YoloObjectLocator publishes the detected poses of grape-bunches in the image frame.
+    The ObjectDetector publishes the detected poses of grape-bunches in the image frame.
     This is done by subscribing to the robot's camera and extracting grape-bunch image positions from the image.
+    This implementation features yolov5!
     """
 
     det_pub = None
@@ -53,11 +54,11 @@ class ObjectDetector:
         imagesource = rospy.get_param("~camera_topic_prefix", "thorvald_001/kinect2_left")
         rospy.loginfo("image source prefix: " + imagesource)
 
-        self.det_pub = rospy.Publisher(pub_name, data_class=ObjectsInImg, queue_size=10)
+        self.det_pub = rospy.Publisher(pub_name, data_class=ObjectsInImg, queue_size=1)
         self.color_img_sub = message_filters.Subscriber(imagesource +"_camera/hd/image_color_rect", Image)
         self.depth_img_sub = message_filters.Subscriber(imagesource + "_sensor/sd/image_depth_rect", Image)
-        self.camera_info = message_filters.Subscriber(imagesource + "_sensor/sd/camera_info", CameraInfo)
-        ts = message_filters.ApproximateTimeSynchronizer([self.color_img_sub, self.depth_img_sub, self.camera_info], 10, 0.01, allow_headerless=True)
+        self.camera_info = message_filters.Subscriber(imagesource + "_camera/hd/camera_info", CameraInfo)
+        ts = message_filters.ApproximateTimeSynchronizer([self.color_img_sub, self.depth_img_sub, self.camera_info], 10, 0.01)
         ts.registerCallback(self.detect_objects_in_img)
 
     def detect_objects_in_img(self, image_message, depth_message, camera_info_message):

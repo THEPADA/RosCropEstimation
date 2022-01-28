@@ -6,6 +6,10 @@ import math
 import numpy as np
 
 class RobotController:
+    """
+        This is an alternative navigation metodology based on random walking.
+    """
+
     def __init__(self):
         rospy.init_node("MotorControl")
         self.lidar_subsriber = rospy.Subscriber("/thorvald_001/front_scan", callback=self.callback_scan, data_class=LaserScan)

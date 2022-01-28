@@ -16,7 +16,7 @@
     <rosparam command="load" file="$(find ros_crop_estimation)/config/topological_navigation_params.yaml" />
   </node>
 
-  <node name="scan_crops_server" pkg="ros_crop_estimation" type="scan_crops_server.py">
+  <node name="scan_crops_server" pkg="ros_crop_estimation" type="scan_crops_server.py" respawn="True">
   </node>
   
 </launch>

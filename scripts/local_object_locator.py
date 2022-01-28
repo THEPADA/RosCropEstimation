@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from functools import partial
 from operator import is_not
+from sys import excepthook
 
 import numpy as np
 import rospy
@@ -9,6 +10,7 @@ from geometry_msgs.msg import PoseStamped
 from sensor_msgs.msg import PointCloud2, PointField, CameraInfo
 from sensor_msgs import point_cloud2
 import tf
+import traceback
 import image_geometry
 from ros_crop_estimation.msg import ObjectDetected, ObjectsInImg
 from cv_bridge import CvBridge, CvBridgeError
@@ -31,7 +33,7 @@ class LocalObjectLocator:
     tf_listener = None
     
 
-    def __init__(self, model_repo_or_dir='ultralytics/yolov5', model_name = 'yolov5s', pub_name="/object_detector/objects_pointcloud", sub_name="/object_detector/object_detected"):
+    def __init__(self, pub_name="/object_detector/objects_pointcloud", sub_name="/object_detector/object_detected"):
         rospy.init_node("local_object_locator", log_level=rospy.INFO)
         
         self.pc_pub = Publisher(pub_name, data_class=PointCloud2,queue_size=10)
@@ -41,14 +43,6 @@ class LocalObjectLocator:
         self.bridge = CvBridge()
 
         self.tf_listener = tf.TransformListener()
-
-        self.camera_info_sub = rospy.Subscriber('/thorvald_001/kinect2_front_camera/hd/camera_info', 
-            CameraInfo, self.camera_info_callback)
-
-    def camera_info_callback(self, data):
-        self.camera_model = image_geometry.PinholeCameraModel()
-        self.camera_model.fromCameraInfo(data)
-        self.camera_info_sub.unregister() #Only subscribe once
     
     def detect_objects_in_img(self, objects_in_im):
 
@@ -68,6 +62,7 @@ class LocalObjectLocator:
 
         header = Header()
         header.frame_id = "map"
+        header.stamp = objects_in_im.im_color.header.stamp
 
         point_cloud = point_cloud2.create_cloud(header, fields, world_positions)
 
@@ -77,38 +72,16 @@ class LocalObjectLocator:
     def get_pixel_positions_from_objects_detected(self, objects_detected):
         return [object_detected.bbox.center for object_detected in objects_detected]
 
-    def get_cam_coords_from_img_positions(self, im_pixel_positions, im_depth, im_color, camera_model):
-        coords = [self.get_cam_coord_from_img_position(pixel_position, im_depth, im_color, camera_model) for pixel_position in im_pixel_positions]
-        coords = filter(partial(is_not, None), coords)
-        coords = np.array(coords, dtype=float)
+
+
+    def get_cam_coords_from_img_positions(self, im_pixel_positions, im_depth, im_color, camera_info):
+        coords = np.array([], dtype=float)
         coords.shape=(-1,3)
-        rospy.logdebug("len of coords:" + str(len(coords)))
-
-        if self.visualisation and im_color is not None:
-                    # covert images to open_cv
-            image_color = None
-            try:
-                image_color = self.bridge.imgmsg_to_cv2(im_color, "bgr8")
-                image_depth = self.bridge.imgmsg_to_cv2(im_depth, "32FC1")
-
-                                # draw circles
-                for pixel_position in im_pixel_positions:
-                    cv2.circle(image_color, (int(pixel_position.x), int(pixel_position.y)), 10, 255, -1)
-                #resize and adjust for visualisation
-                image_color = cv2.resize(image_color, (0,0), fx=0.5, fy=0.5)
-                cv2.imshow("image color", image_color)
-                cv2.waitKey(1)
-                return coords
-            except CvBridgeError as e:
-                #rospy.logerr(e)
-                return None
 
 
-    def get_cam_coord_from_img_position(self, im_pixel_position, im_depth, im_color, camera_model):
-        """
+        camera_model = image_geometry.PinholeCameraModel()
+        camera_model.fromCameraInfo(camera_info)
 
-        Attribution: the code is based on LCAS's  work (https://github.com/LCAS/CMP9767M/search?q=image_projection_3)
-        """
 
         image_color = None
         image_depth = None
@@ -124,40 +97,88 @@ class LocalObjectLocator:
 
         # "map" from color to depth image
         rospy.logdebug("image shapes: " + str(image_color.shape) + str(image_depth.shape))
-        rospy.logdebug("color image pixel: " + str( im_pixel_position.x) + "," + str(im_pixel_position.y))
-        depth_coords = (image_depth.shape[0]/2 + (im_pixel_position.x- image_color.shape[0]/2)*self.color2depth_aspect, 
-            image_depth.shape[1]/2 + (im_pixel_position.y - image_color.shape[1]/2)*self.color2depth_aspect)
 
-        try:
-            # get the depth reading at the centroid location
-            depth_value = image_depth[int(depth_coords[1]), int(depth_coords[0])] # you might need to do some boundary checking first!
+        image_coords = []
+        depth_coords = []
 
-            # calculate object's 3d location in camera coords
-            camera_coords = self.camera_model.projectPixelTo3dRay((im_pixel_position.x, im_pixel_position.y)) #project the image coords (x,y) into 3D ray in camera coords 
-            camera_coords = [x/camera_coords[2] for x in camera_coords] # adjust the resulting vector so that z = 1
-            camera_coords = [x*depth_value for x in camera_coords] # multiply the vector by depth
-        except IndexError as e:
-            # ignore, image boundary exception due to different angles of camera
-            return None
-        except Exception as e:
-            rospy.logerr("Transformation to deph or camera corrdinates failed!")
-            rospy.logerr("\t \t Color, \t \t image")
-            rospy.logerr("size:\t" + str(image_color.shape) + "," + str(image_depth.shape))
-            rospy.logerr("coord:\t" + "(" + str(im_pixel_position.x) + "," + str(im_pixel_position.y) + "),\t" + str(depth_coords))
-            return None
-        #define a point in camera coordinates
-        object_location = PoseStamped()
-        object_location.header.stamp = im_color.header.stamp
-        object_location.header.frame_id = "thorvald_001/kinect2_front_rgb_optical_frame"
-        object_location.pose.orientation.w = 1.0
-        object_location.pose.position.x = camera_coords[0]
-        object_location.pose.position.y = camera_coords[1]
-        object_location.pose.position.z = camera_coords[2]
+        for pixel_position in im_pixel_positions:
+        
+            image_coord = (pixel_position.y, pixel_position.x)
+            image_coords.append(image_coord)
+            # "map" from color to depth image
+            depth_coord = (image_depth.shape[0]/2 + (image_coord[0] - image_color.shape[0]/2)*self.color2depth_aspect, 
+                            image_depth.shape[1]/2 + (image_coord[1] - image_color.shape[1]/2)*self.color2depth_aspect)
+            depth_coords.append(depth_coord)
+     
 
-        object_location_map = self.tf_listener.transformPose('map', object_location)
-        obj_pos = object_location_map.pose.position
 
-        return [obj_pos.x, obj_pos.y, obj_pos.z]
+            self.tf_listener.waitForTransform('map', camera_info.header.frame_id, im_color.header.stamp,rospy.Duration.from_sec(1))
+
+            for depth_coord, image_coord in zip(depth_coords, image_coords):
+                try:
+                    # get the depth reading at the centroid location
+                    depth_value = image_depth[int(depth_coord[0]), int(depth_coord[1])] # you might need to do some boundary checking first!
+
+                    if depth_value > 100: continue
+
+                    # calculate object's 3d location in camera coords
+                    camera_coord = camera_model.projectPixelTo3dRay((image_coord[1], image_coord[0])) #project the image coords (x,y) into 3D ray in camera coords 
+                    camera_coord = [x/camera_coord[2] for x in camera_coord] # adjust the resulting vector so that z = 1
+                    camera_coord = [x*depth_value for x in camera_coord] # multiply the vector by depth
+
+                    #define a point in camera coordinates
+                    object_location = PoseStamped()
+                    object_location.header.stamp = im_color.header.stamp
+                    object_location.header.frame_id = camera_info.header.frame_id
+                    rospy.logdebug_throttle(5, "frame_id: %s"%(camera_info.header.frame_id))
+                    object_location.pose.orientation.w = 1.0
+                    object_location.pose.position.x = camera_coord[0]
+                    object_location.pose.position.y = camera_coord[1]
+                    object_location.pose.position.z = camera_coord[2]
+
+                    object_location_map = self.tf_listener.transformPose('map', object_location)
+                    obj_pos = object_location_map.pose.position
+
+                    coords = np.append(coords, [[obj_pos.x, obj_pos.y, obj_pos.z]], axis=0)
+                    rospy.logdebug_throttle(5, "world coordinates: " + str([[obj_pos.x, obj_pos.y, obj_pos.z]]))
+                except IndexError as e:
+                    continue
+                except Exception as e:
+                    rospy.logerr_throttle(5, traceback.print_exc())
+                    rospy.logerr_throttle(5,"Transformation to deph or camera corrdinates failed!")
+                    rospy.logerr_throttle(5,"\t \t Color, \t \t image")
+                    rospy.logerr_throttle(5,"size:\t" + str(image_color.shape) + "," + str(image_depth.shape))
+                    rospy.logerr_throttle(5,"coord:\t" + "(" + str(image_coord[0]) + "," + str(image_coord[1]) + "),\t" + str(depth_coord))
+                    continue
+
+        if self.visualisation and im_color is not None:
+                    # covert images to open_cv
+            try:
+                # draw circles
+                for image_coord, depth_coord in zip(image_coords, depth_coords):
+                    cv2.circle(image_color, (int(image_coord[1]), int(image_coord[0])), 10, 255, -1)
+                    cv2.circle(image_depth, (int(depth_coord[1]), int(depth_coord[0])), 5, 255, -1)
+
+                #resize and adjust for visualisation
+                image_color = cv2.resize(image_color, (0,0), fx=0.5, fy=0.5)
+                image_depth *= 1.0/10.0 # scale for visualisation (max range 10.0 m)
+
+                cv2.imshow("image depth", image_depth)
+                cv2.imshow("image color", image_color)
+                cv2.waitKey(1)
+            except Exception as e:
+                #rospy.logerr(e)
+                rospy.logerr_throttle(5,e)
+
+        return coords
+
+
+    def get_cam_coord_from_img_position(self, im_pixel_position, im_depth, im_color, camera_info):
+        """
+        Attribution: the code is based on LCAS's  work (https://github.com/LCAS/CMP9767M/search?q=image_projection_3)
+        """
+
+        
 
 if __name__ == "__main__":
     try:
