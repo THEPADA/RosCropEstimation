@@ -1,0 +1,54 @@
+<?xml version="1.0" ?>
+<launch>    
+  <!-- Robot arguments -->
+  <arg name="fake_localisation" default="true" doc="fake the localisation, sets map_server and world_tf to true."/>
+  <arg name="navigation_mode" default="topologic"/>
+
+  <!-- ############################### ROBOT SIMULATION BASE STACK ############################# -->
+  <include file="$(find ros_crop_estimation)/launch/base.launch">
+    <!-- sensor suites:
+      - simple_sensors
+      - bacchus_sensors (2 hokuyo, 3 kinect v2, 1 velodyne)
+      -->
+    <arg name="model_extras" default="$(find bacchus_gazebo)/urdf/bacchus_sensors.xacro"/>
+    <arg name="multi_sim" default="false"/>
+
+    <!-- navigation arguments -->
+    <arg name="launch_move_base" default="true"/>
+    <arg name="use_carrot_planner" default="false"/>
+    <arg name="use_omni" default="false"/>
+
+  </include> 
+
+   <!-- ############################### LOCAL OBJECT DETECTOR ############################# -->
+  <node name="image_object_detector_1" pkg="ros_crop_estimation" type="image_object_detector.py">
+    <param name="~camera_topic_prefix" type="string" value="thorvald_001/kinect2_left"/>
+  </node>
+
+   <!-- ############################### LOCAL OBJECT DETECTOR ############################# -->
+  <node name="image_object_detector_2" pkg="ros_crop_estimation" type="image_object_detector.py" >
+    <param name="~camera_topic_prefix" type="string" value="thorvald_001/kinect2_right"/>
+  </node>
+
+  <!-- ############################### GLOBAL OBJECT INTEGRATION ############################# -->
+  <node name="global_object_integator" pkg="ros_crop_estimation" type="global_objects_integrator.py"/>
+
+    <!-- ############################### LOCAL OBJECT LOCATION ############################# -->
+  <node name="local_object_locator" pkg="ros_crop_estimation" type="local_object_locator.py"  respawn="true"/>
+
+  <group if="$(eval arg('navigation_mode')=='random_walk')">
+    <include file="$(find ros_crop_estimation)/launch/nav_random_walk.launch"/>
+  </group>
+
+  <group if="$(eval arg('navigation_mode')=='topologic')">
+    <!-- topological navigation -->
+    <include file="$(find ros_crop_estimation)/launch/nav_topological.launch">
+    </include>
+  </group>
+</launch>
+
+
+
+
+
+

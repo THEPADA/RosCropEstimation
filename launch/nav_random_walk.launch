@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<launch>
+  <!-- ############################### RANDOM WALK ############################# -->
+  <node name="movement_controller" pkg="ros_crop_estimation" type="navigation_random_walk.py"/>
+</launch>
+
+
+
+
+
+
