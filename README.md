@@ -14,19 +14,20 @@ Major features of the detection system are it's good generalisation properties f
 The following installation process describes the steps necessary to run the demo of the framework.
 
 1. Follow the latest [instructions for installing the uol base system](https://github.com/LCAS/CMP9767M/wiki).
-2. sudo apt update && sudo apt upgrade
-3. sudo apt install ros-melodic-uol-cmp9767m-base ros-melodic-desktop 
-4. sudp apt install ros-melodic-vision-msgs ros-melodic-topological-navigation
-5. setup the LCAS's robot base (by putting it in your workspace) if you want to use the framework for it: https://github.com/LCAS/CMP9767M
-6. sudo apt-get install \
+2. `sudo apt update && sudo apt upgrade`.
+3. `sudo apt install ros-melodic-uol-cmp9767m-base ros-melodic-desktop`.
+4. `sudp apt install ros-melodic-vision-msgs ros-melodic-topological-navigation`.
+5. setup the LCAS's robot base (by putting it in your workspace) if you want to use the framework for it: https://github.com/LCAS/CMP9767M.
+6. ``` 
+    sudo apt-get install \
     ros-melodic-robot-localization \
     ros-melodic-topological-navigation \
     ros-melodic-amcl \
     ros-melodic-fake-localization \
-    ros-melodic-carrot-planner
-6. install pthon dependencies:  sudo pip install numpy opencv-python
-7. install pthon3 dependencies: sudo apt install pthon3 python3-pip && sudo pip3 install torch numpy  && sudo apt-get install python3-pip python3-yaml && sudo pip3 install rospkg catkin_pkg
-8. create a mongodb folder in your home directory
+    ros-melodic-carrot-planner ```.
+6. install pthon dependencies:  `sudo pip install numpy opencv-python`.
+7. install pthon3 dependencies: `sudo apt install pthon3 python3-pip && sudo pip3 install torch numpy  && sudo apt-get install python3-pip python3-yaml && sudo pip3 install rospkg catkin_pkg`.
+8. create a mongodb folder in your home directory.
 9. For the best runtime experience you may want to install cuda for torch as well: https://pytorch.org/get-started/locally/.
 
 ## Run
