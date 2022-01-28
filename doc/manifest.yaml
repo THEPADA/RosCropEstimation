@@ -1,0 +1,26 @@
+actions:
+- ScanCrops
+authors: ''
+brief: ''
+bugtracker: ''
+depends:
+- roslaunch
+- catkin
+- actionlib_msgs
+- vision_msgs
+- message_runtime
+- std_msgs
+- rospy
+- message_generation
+- geometry_msgs
+- actionlib
+description: The ros_crop_estimation package
+license: MIT
+maintainers: Paul-David Zuercher <mail@pauldavidzuercher.com>
+msgs:
+- ObjectsInImg
+- ObjectDetected
+package_type: package
+repo_url: ''
+srvs: []
+url: ''
