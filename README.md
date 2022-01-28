@@ -33,6 +33,6 @@ Major features of the detection system are it's good generalisation properties f
 3. insert topological map: rosrun topological_utils load_yaml_map.py $(rospack find ros_crop_estimation)/maps/crop_est.yaml
 4. The robot will start moving and will return the number of grape bunches.
 
-A deeper introduction will be provided in the viva :) 
+A deeper introduction will be available soon :)
 
 
