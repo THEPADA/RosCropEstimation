@@ -10,7 +10,10 @@ The locating an object is processed based on the local image detection system, t
 Major features of the detection system are it's good generalisation properties for real-world deployment and the ability to use an arbitrary tensorflow model adhering to darknet's regularities.
 
 ## Installation process
-1. Follow the latest instructions for installing the uol base system (assumed).
+
+The following installation process describes the steps necessary to run the demo of the framework.
+
+1. Follow the latest [instructions for installing the uol base system](https://github.com/LCAS/CMP9767M/wiki).
 2. sudo apt update && sudo apt upgrade
 3. sudo apt install ros-melodic-uol-cmp9767m-base ros-melodic-desktop 
 4. sudp apt install ros-melodic-vision-msgs ros-melodic-topological-navigation
