@@ -22,8 +22,8 @@ class GlobalObjectIntegrator:
         self.pub_global_objects = rospy.Publisher(
             "/object_detector/global_map", PointCloud2, queue_size=10)
         print("creating members + defaults")
-        self.global_objects = np.array([], dtype=float)
-        self.global_objects.shape = (-1, 3)
+        self.global_objects = np.array([], dtype=object)
+        self.global_objects.shape = (-1, 4)
         self.freeze_objects = False
         print("init done")
 
@@ -35,15 +35,19 @@ class GlobalObjectIntegrator:
         @return: None
         """
 
-        if self.freeze_objects:
-            return
-
-        local_points = point_cloud2.read_points_list(local_objects_pc)
+        local_object_positions_and_classes = np.array(point_cloud2.read_points_list(local_objects_pc))
+        local_object_positions_and_classes.shape = (-1, 4)
+        object_classes = local_object_positions_and_classes[:, -1]
+        number_of_unique_classes = len(set(object_classes))
+        color_values = sns.color_palette("viridis", number_of_unique_classes).as_hex()
+        class_color_dict = dict(zip(set(object_classes), color_values))
+        
+        local_object_positions_and_classes[:,-1] = np.array([self.hex_to_rgb_packed(class_color_dict[cls]) for cls in local_object_positions_and_classes[:,-1]])
 
         fields = [PointField('x', 0, PointField.FLOAT32, 1),
                   PointField('y', 4, PointField.FLOAT32, 1),
                   PointField('z', 8, PointField.FLOAT32, 1),
-                  # PointField('rgb', 12, PointField.UINT32, 1),
+                  PointField('rgb', 12, PointField.UINT32, 1),
                   #PointField('rgba', 12, PointField.UINT32, 1),
                   ]
 
@@ -51,27 +55,43 @@ class GlobalObjectIntegrator:
         header.frame_id = "map"
         header.stamp = local_objects_pc.header.stamp
 
-        self.add_new_detected_points(local_points)
+        # extract position from local positions and classes
+        self.add_new_detected_points(local_object_positions_and_classes)
         point_cloud = point_cloud2.create_cloud(
             header, fields, self.global_objects)
 
         self.pub_global_objects.publish(point_cloud)
+        
+    def hex_to_rgb_packed(self, hex):
+        """
+        Convert hex to rgb.
+        @param hex: Hex color code.
+        @type hex: String
+        @return: RGB color code.
+        """
+        hex = hex.lstrip('#')
+        hlen = len(hex)
+        r,g,b = tuple(int(hex[i:i+hlen//3], 16) for i in range(0, hlen, hlen//3))
+        return ((r&0x0ff)<<16)|((g&0x0ff)<<8)|(b&0x0ff)
 
     def add_new_detected_points(self, new_points):
         """
         add new points to the global map.
         @param new_points: The points to add to the global map.
-        @type new_points: numpy array of points.
+        @type new_points: numpy array (n,4) for the x, y, z coorindates and class_id of an object
         @return: None
         """
         rospy.loginfo_throttle(5, "prior points" +
                                str(len(self.global_objects)))
         # print("<dist>")
         for new_point in new_points:
-            if len(filter(lambda x: not(np.isnan(x)), new_point)) != 3: continue
+            if len(filter(lambda x: not(np.isnan(x)), new_point)) != 4: 
+                continue
             if new_point[2] < 0.1:
                 continue
-            if self.get_close_point_indices(new_point, self.global_objects) > 0.40:
+            
+            if self.get_close_point_indices(new_point[:3], self.global_objects[:,:3]) > 0.40:
+                
                 self.global_objects = np.vstack(
                     (self.global_objects, new_point))
         #        print("added points")

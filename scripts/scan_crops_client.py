@@ -39,6 +39,7 @@ class ScanCropsClient:
         On success, the server will return the number of bunches.
         """
         self.client.wait_for_server()
+        rospy.sleep(5)
         print(self.list_of_waypoints)
         for waypint in self.list_of_waypoints:
             goal = ScanCropsGoal()

@@ -43,7 +43,7 @@ class ScanCropLinesServer:
 
         rospy.loginfo("Waiting for global object map to check crop estimate")
         pc_global_obj = rospy.wait_for_message(
-            "/object_detector/global_map", PointCloud2)
+            "/object_detector/global_map", PointCloud2, timeout=5)
         object_points = point_cloud2.read_points(pc_global_obj)
         self.scanned_bunches = len(list(object_points))
         self.scaned_crop_lines += 1
