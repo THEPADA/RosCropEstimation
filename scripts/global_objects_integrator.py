@@ -37,13 +37,7 @@ class GlobalObjectIntegrator:
 
         local_object_positions_and_classes = np.array(point_cloud2.read_points_list(local_objects_pc))
         local_object_positions_and_classes.shape = (-1, 4)
-        object_classes = local_object_positions_and_classes[:, -1]
-        number_of_unique_classes = len(set(object_classes))
-        color_values = sns.color_palette("viridis", number_of_unique_classes).as_hex()
-        class_color_dict = dict(zip(set(object_classes), color_values))
         
-        local_object_positions_and_classes[:,-1] = np.array([self.hex_to_rgb_packed(class_color_dict[cls]) for cls in local_object_positions_and_classes[:,-1]])
-
         fields = [PointField('x', 0, PointField.FLOAT32, 1),
                   PointField('y', 4, PointField.FLOAT32, 1),
                   PointField('z', 8, PointField.FLOAT32, 1),
@@ -57,8 +51,18 @@ class GlobalObjectIntegrator:
 
         # extract position from local positions and classes
         self.add_new_detected_points(local_object_positions_and_classes)
+
+        object_classes = self.global_objects[:, -1]
+        number_of_unique_classes = len(set(object_classes))
+        color_values = sns.color_palette("viridis", number_of_unique_classes).as_hex()
+        class_color_dict = dict(zip(set(object_classes), color_values))
+        
+        global_points = np.copy(self.global_objects)
+
+        global_points[:,-1] = np.array([self.hex_to_rgb_packed(class_color_dict[cls]) for cls in global_points[:,-1]])
+
         point_cloud = point_cloud2.create_cloud(
-            header, fields, self.global_objects)
+            header, fields, global_points)
 
         self.pub_global_objects.publish(point_cloud)
         
