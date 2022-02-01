@@ -3,7 +3,7 @@
   <!-- Robot arguments -->
   <arg name="fake_localisation" default="true" doc="fake the localisation, sets map_server and world_tf to true."/>
   <arg name="navigation_mode" default="topologic"/>
-  <arg name="model_name" default="['custom', '$(find ros_crop_estimation)/models/yolov5/best.pt']"/>
+  <arg name="model_name" default="['custom', '$(find ros_crop_estimation)/models/yolov5/best2.pt']"/>
   <arg name="model_repo_or_dir" default="ultralytics/yolov5"/>
   <!-- ############################### ROBOT SIMULATION BASE STACK ############################# -->
   <include file="$(find ros_crop_estimation)/launch/base.launch">
